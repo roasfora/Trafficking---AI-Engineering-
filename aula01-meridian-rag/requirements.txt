@@ -1,0 +1,26 @@
+# Meridian AI Assistant — dependências
+#
+# Zero API keys. Nada aqui envia dados para fora da tua máquina.
+# Versões verificadas em setembro de 2026.
+
+# --- interface -------------------------------------------------------------
+streamlit>=1.40,<2.0              # 1.63.0
+
+# --- orquestração ----------------------------------------------------------
+langchain-core>=0.3,<2.0          # 1.6.2  · Documents, mensagens, interfaces
+langchain-ollama>=0.3,<2.0        # 1.1.0  · ChatOllama + OllamaEmbeddings
+langchain-text-splitters>=0.3,<2.0  # 1.1.2 · RecursiveCharacterTextSplitter
+langgraph>=0.6,<2.0               # 1.2.11 · StateGraph, checkpointers
+
+# --- utilitários -----------------------------------------------------------
+httpx>=0.27                       # diagnóstico do servidor Ollama
+python-dotenv>=1.0,<2.0           # ler o .env (opcional)
+
+# --- desenvolvimento -------------------------------------------------------
+pytest>=8.0,<9.0
+
+# NOTA: não há vector database aqui. Usamos o InMemoryVectorStore do
+# langchain-core, que guarda os vetores num dicionário e sabe gravar-se
+# num ficheiro JSON. Para 10 documentos é a escolha certa — e não esconde
+# nada. Em produção troca-se por pgvector, Chroma ou OpenSearch: mesma
+# interface `VectorStore`, uma linha de código.
