@@ -1,0 +1,71 @@
+# Tres containers, de proposito:
+#
+#   postgres  uma instancia, DUAS bases: "analytics" (dados) e "airflow" (metadados)
+#   api       o producer (FastAPI)
+#   airflow   o orquestrador, em modo `standalone`
+#
+# `airflow standalone` e uma SIMPLIFICACAO PARA FORMACAO: corre num so container
+# o que em producao sao processos (e normalmente maquinas) separados -
+# api-server/UI, scheduler, dag-processor e triggerer. Continuam a ser conceitos
+# distintos, e a topologia de producao e diferente (ver README, seccao 10).
+
+services:
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-tracking}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-tracking}
+      POSTGRES_DB: ${POSTGRES_DB:-analytics}
+    ports:
+      - "${POSTGRES_HOST_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # cria a segunda base de dados ("airflow") na primeira vez que o volume nasce
+      - ./docker/postgres-init.sql:/docker-entrypoint-initdb.d/01-airflow-db.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-tracking} -d ${POSTGRES_DB:-analytics}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: docker/api.Dockerfile
+    env_file: .env
+    ports:
+      - "8000:8000"
+    healthcheck:
+      # NAO usa /health: o fault injection (rate_limit, http_500) afetaria o
+      # healthcheck do Docker e falsearia as contagens da demonstracao.
+      # /admin/mode nunca e afetado por falhas.
+      test: ["CMD", "python", "-c", "import urllib.request as u; u.urlopen('http://localhost:8000/admin/mode')"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  airflow:
+    build:
+      context: .
+      dockerfile: docker/airflow.Dockerfile
+    command: standalone
+    env_file: .env
+    environment:
+      # o projeto inteiro e montado em /opt/airflow/project e fica importavel
+      PYTHONPATH: /opt/airflow/project
+      AIRFLOW__CORE__DAGS_FOLDER: /opt/airflow/project/dags
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      # o LocalExecutor lanca um processo por slot; 4 chegam para esta aula
+      AIRFLOW__CORE__PARALLELISM: "4"
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/opt/airflow/project
+    depends_on:
+      postgres:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+
+volumes:
+  pgdata:

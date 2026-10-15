@@ -1,0 +1,7 @@
+# Ambiente de desenvolvimento no host (testes, scripts). Python 3.11+.
+#   python3.11 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt
+#
+# Os containers instalam apenas o que precisam (ver docker/requirements-*.txt).
+-r docker/requirements-api.txt
+-r docker/requirements-airflow.txt
+pytest>=8.0,<10.0        # 9.1.1

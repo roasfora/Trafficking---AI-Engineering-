@@ -1,0 +1,4 @@
+# Acrescentos a imagem do Airflow (consumer). O Airflow ja traz pydantic e httpx.
+pandas>=2.2,<4.0         # 3.0.6
+psycopg[binary]>=3.2,<4.0  # 3.3.6 · driver PostgreSQL (o do ETL; o Airflow usa psycopg2 para os metadados)
+httpx>=0.27,<1.0         # 0.28.1

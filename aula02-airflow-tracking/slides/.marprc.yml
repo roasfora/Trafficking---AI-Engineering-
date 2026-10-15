@@ -1,0 +1,6 @@
+# Marp CLI: HTML tem de estar ligado — os slides usam <div>/<pre> para
+# diagramas e cartões. Sem isto, as tags sao removidas e o deck fica vazio.
+html: true
+allowLocalFiles: true
+options:
+  looseYAML: false

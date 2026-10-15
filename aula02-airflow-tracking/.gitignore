@@ -1,0 +1,21 @@
+# ambientes
+.venv/
+venv/
+
+# python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# configuracao local (credenciais!) - o modelo versionado e .env.example
+.env
+
+# ficheiros temporarios entre tasks: gerados, nao versionados
+data/staging/*
+!data/staging/.gitkeep
+
+# sistema
+.DS_Store
+.idea/
+.vscode/
