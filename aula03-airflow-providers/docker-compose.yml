@@ -1,0 +1,74 @@
+# Tres containers, de proposito:
+#
+#   postgres   uma instancia, DUAS bases: "analytics" (dados) e "airflow" (metadados)
+#   mock-api   os dois providers falsos (TrafficJunky e Erobella), com fault injection
+#   airflow    o orquestrador, em modo `standalone`
+#
+# `airflow standalone` e uma SIMPLIFICACAO PARA FORMACAO: corre num so container
+# o que em producao sao processos (e normalmente maquinas) separados -
+# api-server/UI, scheduler, dag-processor e triggerer.
+#
+# Portas do host diferentes das da aula 02 (5432/8000/8080): podes ter as duas
+# aulas ligadas ao mesmo tempo.
+
+services:
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-providers}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-providers}
+      POSTGRES_DB: ${POSTGRES_DB:-analytics}
+    ports:
+      - "${POSTGRES_HOST_PORT:-5433}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # cria a segunda base de dados ("airflow") na primeira vez que o volume nasce
+      - ./docker/postgres-init.sql:/docker-entrypoint-initdb.d/01-airflow-db.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-providers} -d ${POSTGRES_DB:-analytics}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  mock-api:
+    build:
+      context: .
+      dockerfile: docker/mock.Dockerfile
+    env_file: .env
+    ports:
+      - "${MOCK_API_HOST_PORT:-8001}:8000"
+    volumes:
+      # a MESMA lista de campanhas que a pipeline carrega em dim_campaign
+      - ./data/campaigns.csv:/app/data/campaigns.csv:ro
+    healthcheck:
+      # NAO usa os endpoints dos providers: o fault injection (rate_limit,
+      # http_500) afetaria o healthcheck do Docker e falsearia as demos.
+      test: ["CMD", "python", "-c", "import urllib.request as u; u.urlopen('http://localhost:8000/admin/state')"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  airflow:
+    build:
+      context: .
+      dockerfile: docker/airflow.Dockerfile
+    command: standalone
+    env_file: .env
+    environment:
+      # o projeto inteiro e montado em /opt/airflow/project e fica importavel
+      PYTHONPATH: /opt/airflow/project
+      AIRFLOW__CORE__DAGS_FOLDER: /opt/airflow/project/dags
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__CORE__PARALLELISM: "4"
+    ports:
+      - "${AIRFLOW_HOST_PORT:-8081}:8080"
+    volumes:
+      - .:/opt/airflow/project
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mock-api:
+        condition: service_healthy
+
+volumes:
+  pgdata:
