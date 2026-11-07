@@ -1,0 +1,8 @@
+offer_id,name,country_code,affiliate_network_id,affiliate_network_name,payout,currency_code,deleted
+b4861c98-f507-5ead-8cac-3bdaa1d652de,Casino Welcome Bonus PT,PT,1e5ce541-d45f-5e62-ad8c-491767866a9f,AdCombo,55.0,USD,false
+9e99b826-d98b-5159-b750-71b388e3a87b,Sports Betting ES,ES,8932e3d6-cb0f-5650-8689-d4a55a6eb014,MaxBounty,70.0,USD,false
+ec796416-74b8-537a-9639-9b4050235fc0,Keto Trial BR,BR,1e5ce541-d45f-5e62-ad8c-491767866a9f,AdCombo,30.0,USD,false
+28000f04-33ff-5622-a31b-cd08ef477619,Quick Loan DE,DE,52405f13-fe24-51b6-9406-48323a6701b7,ClickDealer,22.0,EUR,false
+038026a0-d257-56f4-91c8-5b32deaec0ca,Dating Premium FR,FR,52405f13-fe24-51b6-9406-48323a6701b7,ClickDealer,14.0,EUR,false
+d3a3dc27-a886-5d30-8e56-3272f62ec89d,VPN Subscription,,8932e3d6-cb0f-5650-8689-d4a55a6eb014,MaxBounty,9.0,USD,false
+0b4208dd-2606-5fd9-a141-a4b525147c0b,Retired Offer,PT,1e5ce541-d45f-5e62-ad8c-491767866a9f,AdCombo,40.0,USD,true

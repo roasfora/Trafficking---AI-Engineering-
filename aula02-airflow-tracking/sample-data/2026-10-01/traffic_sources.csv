@@ -1,0 +1,7 @@
+traffic_source_id,name,currency_code,deleted
+8023ab78-3e34-5724-a144-e55f4b558cd8,ExoClick,USD,false
+1cbce22a-5677-5efa-abbf-57ece5181c9a,TrafficStars,EUR,false
+df197c44-705a-5c11-bab3-da47b525a354,PropellerAds,USD,false
+4ef5a26c-2d2e-5e5d-ac69-eb8720c424b2,TrafficJunky,USD,false
+109275f6-c0c8-50f8-b1eb-56653c5ec69e,PushGround,EUR,false
+53c57b6d-01c6-5261-92fd-19fc2956ec3a,Legacy Network,USD,true

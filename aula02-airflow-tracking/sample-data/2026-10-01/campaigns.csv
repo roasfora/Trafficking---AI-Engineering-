@@ -1,0 +1,9 @@
+campaign_id,name,geo,traffic_source_id,workspace_id,is_paused,created
+30a8ddc4-8614-5265-8d57-83b858f84d9d,PT Casino - ExoClick,PT,8023ab78-3e34-5724-a144-e55f4b558cd8,28918cfe-c8ea-5ddd-a019-4d92c1fe4440,false,2026-06-01T00:00:00+00:00
+bcdb0501-f055-51a4-a1de-c4d12f351cff,ES Sports - TrafficStars,ES,1cbce22a-5677-5efa-abbf-57ece5181c9a,28918cfe-c8ea-5ddd-a019-4d92c1fe4440,false,2026-06-15T00:00:00+00:00
+cc786151-e3ae-5821-8c6d-2ebb99c9af2c,BR Keto - PropellerAds,BR,df197c44-705a-5c11-bab3-da47b525a354,e01d5b11-4d5d-5216-96eb-a5b1e990a2e9,false,2026-07-02T00:00:00+00:00
+20ef2796-2a7b-5fe9-9e4b-4d262f32fb39,DE Loans - TrafficJunky,DE,4ef5a26c-2d2e-5e5d-ac69-eb8720c424b2,e01d5b11-4d5d-5216-96eb-a5b1e990a2e9,false,2026-07-20T00:00:00+00:00
+9e520ed3-8ef4-50b7-a43f-df2461d77f1f,FR Dating - PushGround,FR,109275f6-c0c8-50f8-b1eb-56653c5ec69e,28918cfe-c8ea-5ddd-a019-4d92c1fe4440,false,2026-08-03T00:00:00+00:00
+10d9a805-00a4-5b34-9866-1db19f4b2e63,WW VPN - ExoClick,WW,8023ab78-3e34-5724-a144-e55f4b558cd8,e01d5b11-4d5d-5216-96eb-a5b1e990a2e9,false,2026-08-18T00:00:00+00:00
+2bc4e890-7b88-5e4e-aa0f-17e102d3b086,PT Casino Retargeting,PT,8023ab78-3e34-5724-a144-e55f4b558cd8,28918cfe-c8ea-5ddd-a019-4d92c1fe4440,true,2026-05-10T00:00:00+00:00
+faedb984-a00c-5d7c-8958-e9ddab6f55da,US Keto Test,US,df197c44-705a-5c11-bab3-da47b525a354,e01d5b11-4d5d-5216-96eb-a5b1e990a2e9,true,2026-05-22T00:00:00+00:00
