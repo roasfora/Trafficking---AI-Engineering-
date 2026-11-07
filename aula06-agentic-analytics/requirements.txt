@@ -1,0 +1,12 @@
+# Ambiente de desenvolvimento no host. Python 3.11+.
+#   python3.11 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt
+langchain>=1.0,<2.0
+langchain-aws>=1.0,<2.0        # ChatBedrockConverse (provider inicial)
+langchain-ollama>=1.0,<2.0     # ChatOllama (provider futuro, ver providers.py)
+streamlit>=1.40,<2.0
+psycopg[binary]>=3.2,<4.0
+pydantic>=2.7,<3.0
+PyYAML>=6.0,<7.0
+sqlglot>=27.0
+python-dotenv>=1.0,<2.0
+pytest>=8.0,<10.0

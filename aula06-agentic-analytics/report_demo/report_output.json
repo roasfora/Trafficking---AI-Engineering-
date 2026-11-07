@@ -1,0 +1,280 @@
+{
+  "version": "1",
+  "reportType": "cr-drops",
+  "subject": {
+    "type": "workspace",
+    "id": "goncalo.vitor",
+    "label": "Gonçalo Vitor"
+  },
+  "window": {
+    "start": "2026-10-10",
+    "end": "2026-11-06"
+  },
+  "currency": "USD",
+  "generatedAt": "2026-11-06T14:33:46.824Z",
+  "status": "ok",
+  "severity": "red",
+  "headline": "6 significant CR drops for Gonçalo Vitor (from 9 campaign×offer pairs)",
+  "count_label": "6 CR drops",
+  "notes": "Analysis over a 28d window (last 14d vs prior 14d). Synthetic demo data.",
+  "geos": [
+    "AU",
+    "DE",
+    "US"
+  ],
+  "sections": [
+    {
+      "type": "finding_list",
+      "rule": "Flag when CR drop ≥25% AND ≥30 conversions in recent block AND statistically significant (two-proportion z-test, α=0.05).",
+      "findings": [
+        {
+          "badge": "b-watch",
+          "title": "SecretHostess - Global - Tab (local sex low)",
+          "summary": "SecretHostess - Global - Tab (local sex low) — CR (conv/clicks): 6.73% → 4.93% (↓27%), confidence high (>95%)",
+          "kpis": [
+            {
+              "label": "CR drop",
+              "value": "↓27%"
+            },
+            {
+              "label": "CR prev",
+              "value": "6.73%"
+            },
+            {
+              "label": "CR recent",
+              "value": "4.93%"
+            },
+            {
+              "label": "Conv recent",
+              "value": "60"
+            },
+            {
+              "label": "Conv prev",
+              "value": "90"
+            },
+            {
+              "label": "Denom",
+              "value": "clicks"
+            },
+            {
+              "label": "p-value",
+              "value": "0.0266"
+            }
+          ],
+          "body": "Offer \"SecretHostess - Global - Tab (local sex low)\". Two-proportion z-test z=-1.93, p=0.0266.",
+          "dimension": "offer",
+          "geo": "AU"
+        },
+        {
+          "badge": "b-watch",
+          "title": "Second Offer - Global - all traffic DE MARKT",
+          "summary": "Elevven - Germany - ContactMilf GST08 9€ — CR (conv/visits): 3.68% → 2.21% (↓40%), confidence very high (>99.9%)",
+          "kpis": [
+            {
+              "label": "CR drop",
+              "value": "↓40%"
+            },
+            {
+              "label": "CR prev",
+              "value": "3.68%"
+            },
+            {
+              "label": "CR recent",
+              "value": "2.21%"
+            },
+            {
+              "label": "Conv recent",
+              "value": "159"
+            },
+            {
+              "label": "Conv prev",
+              "value": "448"
+            },
+            {
+              "label": "Denom",
+              "value": "visits"
+            },
+            {
+              "label": "p-value",
+              "value": "0.0000"
+            }
+          ],
+          "body": "Offer \"Elevven - Germany - ContactMilf GST08 9€\". Two-proportion z-test z=-5.67, p=0.0000.",
+          "dimension": "offer",
+          "geo": "DE"
+        },
+        {
+          "badge": "b-watch",
+          "title": "United States - Deal Thumbnail AOS SFW",
+          "summary": "United States - Deal Thumbnail AOS SFW — CR (conv/visits): 3.13% → 2.02% (↓35%), confidence high (>95%)",
+          "kpis": [
+            {
+              "label": "CR drop",
+              "value": "↓35%"
+            },
+            {
+              "label": "CR prev",
+              "value": "3.13%"
+            },
+            {
+              "label": "CR recent",
+              "value": "2.02%"
+            },
+            {
+              "label": "Conv recent",
+              "value": "45"
+            },
+            {
+              "label": "Conv prev",
+              "value": "95"
+            },
+            {
+              "label": "Denom",
+              "value": "visits"
+            },
+            {
+              "label": "p-value",
+              "value": "0.0067"
+            }
+          ],
+          "body": "Offer \"United States - Deal Thumbnail AOS SFW\". Two-proportion z-test z=-2.47, p=0.0067.",
+          "dimension": "offer",
+          "geo": "US"
+        },
+        {
+          "badge": "b-watch",
+          "title": "Second Offer - United States - all traffic",
+          "summary": "Second Offer - United States - all traffic — CR (conv/visits): 1.76% → 1.19% (↓32%), confidence very high (>99.9%)",
+          "kpis": [
+            {
+              "label": "CR drop",
+              "value": "↓32%"
+            },
+            {
+              "label": "CR prev",
+              "value": "1.76%"
+            },
+            {
+              "label": "CR recent",
+              "value": "1.19%"
+            },
+            {
+              "label": "Conv recent",
+              "value": "100"
+            },
+            {
+              "label": "Conv prev",
+              "value": "190"
+            },
+            {
+              "label": "Denom",
+              "value": "visits"
+            },
+            {
+              "label": "p-value",
+              "value": "0.0007"
+            }
+          ],
+          "body": "Offer \"Second Offer - United States - all traffic\". Two-proportion z-test z=-3.21, p=0.0007.",
+          "dimension": "offer",
+          "geo": "US"
+        },
+        {
+          "badge": "b-watch",
+          "title": "Siteways (all websites) - Global - Local Sex Tab",
+          "summary": "Resality - Global - Smartlink WW — CR (conv/clicks): 14.62% → 10.65% (↓27%), confidence very high (>99.9%)",
+          "kpis": [
+            {
+              "label": "CR drop",
+              "value": "↓27%"
+            },
+            {
+              "label": "CR prev",
+              "value": "14.62%"
+            },
+            {
+              "label": "CR recent",
+              "value": "10.65%"
+            },
+            {
+              "label": "Conv recent",
+              "value": "247"
+            },
+            {
+              "label": "Conv prev",
+              "value": "330"
+            },
+            {
+              "label": "Denom",
+              "value": "clicks"
+            },
+            {
+              "label": "p-value",
+              "value": "0.0000"
+            }
+          ],
+          "body": "Offer \"Resality - Global - Smartlink WW\". Two-proportion z-test z=-4.04, p=0.0000.",
+          "dimension": "offer"
+        },
+        {
+          "badge": "b-watch",
+          "title": "ReactAds - Global - Topescort RON second tab",
+          "summary": "ReactAds - Global - Topescort RON — CR (conv/clicks): 14.37% → 10.69% (↓26%), confidence high (>95%)",
+          "kpis": [
+            {
+              "label": "CR drop",
+              "value": "↓26%"
+            },
+            {
+              "label": "CR prev",
+              "value": "14.37%"
+            },
+            {
+              "label": "CR recent",
+              "value": "10.69%"
+            },
+            {
+              "label": "Conv recent",
+              "value": "120"
+            },
+            {
+              "label": "Conv prev",
+              "value": "150"
+            },
+            {
+              "label": "Denom",
+              "value": "clicks"
+            },
+            {
+              "label": "p-value",
+              "value": "0.0048"
+            }
+          ],
+          "body": "Offer \"ReactAds - Global - Topescort RON\". Two-proportion z-test z=-2.59, p=0.0048.",
+          "dimension": "offer"
+        }
+      ]
+    },
+    {
+      "type": "bar_chart",
+      "title": "CR drop % by campaign (recent vs previous)",
+      "labels": [
+        "SecretHostess - Global - Tab (local sex ",
+        "Second Offer - Global - all traffic DE M",
+        "United States - Deal Thumbnail AOS SFW",
+        "Second Offer - United States - all traff",
+        "Siteways (all websites) - Global - Local",
+        "ReactAds - Global - Topescort RON second"
+      ],
+      "data": [
+        27,
+        40,
+        35,
+        32,
+        27,
+        26
+      ],
+      "unit": "%"
+    }
+  ]
+}

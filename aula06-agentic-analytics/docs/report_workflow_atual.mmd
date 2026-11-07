@@ -1,0 +1,20 @@
+flowchart TD
+    A["Backend<br/>submit_report(analysis, staff, user, window...)"] --> B["_build_report_prompt<br/>'run the X report for Y over the last W'"]
+    B --> C["_chat(content, user)"]
+    C --> D["BillyService.chat<br/>BASE_INSTRUCTIONS + content + user"]
+    D --> E["Billy (OpenClaw agent)<br/>sessions_spawn / exec background"]
+    E --> F["Resposta em texto"]
+    F --> G["_extract_json<br/>json.loads, fence ```json, ou primeiro { ate ultimo }"]
+    G -->|"nao e JSON"| X1["BillyGatewayError<br/>Malformed response"]
+    G -->|"JSON"| H{"status?"}
+    H -->|"error"| X2["BillyGatewayError<br/>Billy reported error"]
+    H -->|"accepted"| I["Devolve envelope<br/>jobId, pollAfterMs, manifestPath"]
+    H -->|"pending"| J["Devolve envelope<br/>jobId, manifestPath"]
+    H -->|"ok + file"| K["BillyService.fetch_file(file)"]
+    K --> L["envelope['report'] = conteudo do ficheiro<br/>(sem validacao de schema)"]
+    L --> M["Devolve envelope ok"]
+
+    I -.->|"mais tarde"| P["Backend<br/>poll_report(job_id, user)"]
+    J -.-> P
+    P --> Q["_chat('check status of report job ID', user)"]
+    Q --> D

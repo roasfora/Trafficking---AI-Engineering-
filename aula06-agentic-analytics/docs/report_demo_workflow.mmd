@@ -1,0 +1,15 @@
+flowchart TD
+    REQ["request.json<br/>analysis, staff_id, staff_label, window_days"] --> RUN
+    DATA["sample_data.json<br/>campanha x oferta: conv e denominador<br/>(periodo anterior vs recente)"] --> RUN
+    RUN["run_report.py<br/>build_report(request, data)"] --> LOOP["Para cada linha: analyse_row"]
+
+    LOOP --> CALC["Calcula<br/>CR prev, CR recent, drop %<br/>z-test duas proporcoes (1 lado) -> z, p"]
+    CALC --> RULE{"drop >= 25%<br/>E conv recent >= 30<br/>E p < 0.05 ?"}
+    RULE -->|"nao"| SKIP["Linha ignorada"]
+    RULE -->|"sim"| FIND["Cria finding<br/>badge b-watch, title, summary,<br/>kpis (CR drop, prev, recent, conv, denom, p-value),<br/>body, dimension, geo (se existir)"]
+
+    FIND --> SORT["Ordena: agrupa por geo, maior queda primeiro"]
+    SORT --> ASSEMBLE["Monta o relatorio<br/>version, reportType, subject, window,<br/>severity (red se ha findings, senao green),<br/>headline, count_label, notes,<br/>geos = geo unicos dos findings,<br/>sections: finding_list + bar_chart"]
+    ASSEMBLE --> VAL{"validate()<br/>geos == geo dos findings?<br/>sem duplicados?<br/>status e severity validos?"}
+    VAL -->|"falha"| ERR["AssertionError<br/>nada e escrito"]
+    VAL -->|"ok"| OUT["report_output.json<br/>status = ok"]

@@ -1,0 +1,145 @@
+# Metadata SEMANTICA: o que os dados SIGNIFICAM.
+# (A metadata TECNICA - colunas e tipos - vem do PostgreSQL.)
+# Fonte unica de verdade para metricas: tools, workflow e dashboard leem daqui.
+
+dataset: marketing.campaign_performance_daily
+
+description: >
+  Daily advertising performance aggregated
+  by date, provider and campaign.
+
+grain:
+  - date
+  - provider
+  - campaign_id
+
+dimensions:
+
+  date:
+    description: Campaign performance date.
+    synonyms:
+      - date
+      - data
+      - dia
+
+  provider:
+    description: Traffic source.
+    values:
+      - trafficjunky
+      - erobella
+
+  campaign_name:
+    description: Human-readable campaign name.
+
+  campaign_id:
+    description: Campaign identifier.
+
+metrics:
+
+  spend:
+    label: Spend
+    description: Total advertising spend.
+    synonyms:
+      - spend
+      - gasto
+      - gastos
+      - gastámos
+      - investimento
+      - custo
+    expression: SUM(cost)
+    unit: EUR
+
+  impressions:
+    label: Impressions
+    description: Total ad impressions.
+    synonyms:
+      - impressoes
+      - impressões
+    expression: SUM(impressions)
+    unit: count
+
+  clicks:
+    label: Clicks
+    description: Total clicks.
+    synonyms:
+      - cliques
+    expression: SUM(clicks)
+    unit: count
+
+  conversions:
+    label: Conversions
+    description: Total attributed conversions.
+    synonyms:
+      - conversoes
+      - conversões
+    expression: SUM(conversions)
+    unit: count
+
+  revenue:
+    label: Revenue
+    description: Total attributed revenue.
+    synonyms:
+      - receita
+    expression: SUM(revenue)
+    unit: EUR
+
+  cpc:
+    label: Cost per Click
+    description: Spend divided by clicks. Ratio of sums, never an average of daily or per-campaign ratios.
+    synonyms:
+      - custo por clique
+      - cost per click
+    expression: >
+      SUM(cost) / NULLIF(SUM(clicks), 0)
+    unit: EUR
+    never:
+      - AVG(cost / clicks)
+      - AVG(cpc)
+
+  ctr:
+    label: Click Through Rate
+    description: Clicks as a percentage of impressions.
+    expression: >
+      100.0 * SUM(clicks) /
+      NULLIF(SUM(impressions), 0)
+    unit: "%"
+    never:
+      - AVG(clicks / impressions)
+      - AVG(ctr)
+
+  conversion_rate:
+    label: Conversion Rate
+    description: Conversions as a percentage of clicks.
+    synonyms:
+      - cr
+      - conversion rate
+      - taxa de conversão
+    expression: >
+      100.0 * SUM(conversions) /
+      NULLIF(SUM(clicks), 0)
+    # Usado pelo workflow diagnose_metric_drop (decomposicao por segmento).
+    numerator: SUM(conversions)
+    denominator: SUM(clicks)
+    unit: "%"
+    drilldowns:
+      - provider
+      - campaign_name
+    never:
+      - AVG(conversions / clicks)
+      - AVG(conversion_rate)
+
+  cpa:
+    label: Cost per Acquisition
+    description: Spend divided by conversions.
+    expression: >
+      SUM(cost) /
+      NULLIF(SUM(conversions), 0)
+    unit: EUR
+
+  roas:
+    label: Return on Ad Spend
+    description: Revenue divided by spend.
+    expression: >
+      SUM(revenue) /
+      NULLIF(SUM(cost), 0)
+    unit: ratio

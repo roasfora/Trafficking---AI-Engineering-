@@ -1,0 +1,95 @@
+{
+  "as_of": "2026-11-06",
+  "rows": [
+    {
+      "campaign": "Second Offer - Global - all traffic DE MARKT",
+      "offer": "Elevven - Germany - ContactMilf GST08 9€",
+      "geo": "DE",
+      "denominator": "visits",
+      "conv_prev": 448,
+      "den_prev": 12174,
+      "conv_recent": 159,
+      "den_recent": 7195
+    },
+    {
+      "campaign": "Siteways (all websites) - Global - Local Sex Tab",
+      "offer": "Resality - Global - Smartlink WW",
+      "geo": null,
+      "denominator": "clicks",
+      "conv_prev": 330,
+      "den_prev": 2257,
+      "conv_recent": 247,
+      "den_recent": 2319
+    },
+    {
+      "campaign": "ReactAds - Global - Topescort RON second tab",
+      "offer": "ReactAds - Global - Topescort RON",
+      "geo": null,
+      "denominator": "clicks",
+      "conv_prev": 150,
+      "den_prev": 1044,
+      "conv_recent": 120,
+      "den_recent": 1123
+    },
+    {
+      "campaign": "Second Offer - United States - all traffic",
+      "offer": "Second Offer - United States - all traffic",
+      "geo": "US",
+      "denominator": "visits",
+      "conv_prev": 190,
+      "den_prev": 10795,
+      "conv_recent": 100,
+      "den_recent": 8403
+    },
+    {
+      "campaign": "United States - Deal Thumbnail AOS SFW",
+      "offer": "United States - Deal Thumbnail AOS SFW",
+      "geo": "US",
+      "denominator": "visits",
+      "conv_prev": 95,
+      "den_prev": 3035,
+      "conv_recent": 45,
+      "den_recent": 2228
+    },
+    {
+      "campaign": "SecretHostess - Global - Tab (local sex low)",
+      "offer": "SecretHostess - Global - Tab (local sex low)",
+      "geo": "AU",
+      "denominator": "clicks",
+      "conv_prev": 90,
+      "den_prev": 1337,
+      "conv_recent": 60,
+      "den_recent": 1217
+    },
+    {
+      "campaign": "Brand X - FR - all traffic",
+      "offer": "Brand X - France",
+      "geo": "FR",
+      "denominator": "visits",
+      "conv_prev": 300,
+      "den_prev": 10000,
+      "conv_recent": 285,
+      "den_recent": 9800
+    },
+    {
+      "campaign": "Brand Y - PT - tab",
+      "offer": "Brand Y - Portugal",
+      "geo": "PT",
+      "denominator": "clicks",
+      "conv_prev": 50,
+      "den_prev": 1000,
+      "conv_recent": 10,
+      "den_recent": 400
+    },
+    {
+      "campaign": "Brand Z - ES - tab",
+      "offer": "Brand Z - Spain",
+      "geo": "ES",
+      "denominator": "clicks",
+      "conv_prev": 40,
+      "den_prev": 500,
+      "conv_recent": 31,
+      "den_recent": 520
+    }
+  ]
+}

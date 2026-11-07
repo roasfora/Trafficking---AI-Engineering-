@@ -1,0 +1,13 @@
+flowchart TD
+    A["Backend<br/>submit_report(...)"] --> B["Cria job no job store<br/>jobId, estado=accepted, manifestPath"]
+    B --> C["ChatOpenAI(base_url=gateway)<br/>pede ao Billy para executar o job"]
+    C --> D["Billy executa em background<br/>e escreve o ficheiro do relatorio"]
+    B --> E["Devolve accepted + jobId"]
+
+    E -.->|"mais tarde"| P["Backend<br/>poll_report(job_id)"]
+    P --> Q["Job store: estado do job<br/>(sem chamar o LLM)"]
+    Q -->|"a correr"| R["Devolve pending"]
+    Q -->|"terminou"| S["fetch_file(file)"]
+    S --> T["Report.model_validate_json<br/>Pydantic: schema, extra=forbid,<br/>geos == geo dos findings"]
+    T -->|"invalido"| U["Erro de validacao<br/>(ou retry com o erro ao modelo)"]
+    T -->|"valido"| V["Devolve ok + Report tipado"]

@@ -1,0 +1,163 @@
+%% =============================================================================
+%% Aula 06 - Business Analytics Chatbot: 3 diagramas (um por bloco ```mermaid)
+%% Cores: azul=interface | verde=agente/LangChain | amarelo=LLM/providers
+%%        roxo=tools | cinzento=dados | vermelho claro=seguranca
+%% Cola cada diagrama em https://mermaid.live para ver/exportar.
+%% =============================================================================
+
+
+%% ---------------------------------------------------------------------------
+%% DIAGRAMA 1 - Arquitetura geral do Business Analytics Chatbot
+%% Mensagem: "uma aplicacao, varios modelos, mesma logica de negocio"
+%% ---------------------------------------------------------------------------
+flowchart LR
+    classDef ui fill:#dbeafe,stroke:#2563eb,color:#111
+    classDef agent fill:#dcfce7,stroke:#16a34a,color:#111
+    classDef llm fill:#fef9c3,stroke:#ca8a04,color:#111
+    classDef tool fill:#ede9fe,stroke:#7c3aed,color:#111
+    classDef data fill:#e5e7eb,stroke:#6b7280,color:#111
+    classDef sec fill:#fee2e2,stroke:#dc2626,color:#111
+
+    U([Utilizador])
+
+    subgraph INT["Interfaces"]
+        ST["Streamlit UI<br/>streamlit_app.py"]:::ui
+        CLI["CLI<br/>app.py"]:::ui
+    end
+
+    subgraph AG["Agente (um so)"]
+        RA["run_agent()<br/>agent.py"]:::agent
+        OBS["Recibo + log<br/>observability.py<br/>logs/requests.jsonl"]:::agent
+    end
+
+    subgraph MOD["Modelo (muda)"]
+        PR["get_llm()<br/>providers.py"]:::llm
+        BR["Amazon Bedrock<br/>ChatBedrockConverse"]:::llm
+        OL["Ollama local<br/>ChatOllama"]:::llm
+    end
+
+    subgraph TL["3 tools (nao mudam)"]
+        T1["get_metric_definition<br/>tools/metrics.py"]:::tool
+        T2["get_dataset_metadata<br/>tools/catalog.py"]:::tool
+        T3["run_postgres_query<br/>tools/postgres.py"]:::tool
+    end
+
+    GUARD["SQL guard<br/>tools/sql_guard.py"]:::sec
+
+    subgraph DT["Dados (nao mudam)"]
+        SEM[("semantic.yaml<br/>o que significa")]:::data
+        PG[("PostgreSQL<br/>marketing.campaign_performance_daily")]:::data
+    end
+
+    ROLE["Role read-only<br/>analytics_agent"]:::sec
+
+    U --> ST
+    U --> CLI
+    ST --> RA
+    CLI --> RA
+    RA --> PR
+    PR --> BR
+    PR --> OL
+    BR -. "tool calls" .-> RA
+    OL -. "tool calls" .-> RA
+    RA --> T1
+    RA --> T2
+    RA --> T3
+    T1 --> SEM
+    T2 --> PG
+    T3 --> GUARD --> ROLE --> PG
+    RA --> OBS
+    OBS -. "answer + receipt" .-> ST
+    OBS -. "answer + receipt" .-> CLI
+
+
+%% ---------------------------------------------------------------------------
+%% DIAGRAMA 2 - Fluxo de uma pergunta no chatbot
+%% Exemplo: "Quanto gastamos ontem na Erobella?"
+%% Mensagem: "o LLM nao responde sozinho; usa tools governadas"
+%% ---------------------------------------------------------------------------
+flowchart TD
+    classDef ui fill:#dbeafe,stroke:#2563eb,color:#111
+    classDef agent fill:#dcfce7,stroke:#16a34a,color:#111
+    classDef llm fill:#fef9c3,stroke:#ca8a04,color:#111
+    classDef tool fill:#ede9fe,stroke:#7c3aed,color:#111
+    classDef data fill:#e5e7eb,stroke:#6b7280,color:#111
+    classDef sec fill:#fee2e2,stroke:#dc2626,color:#111
+
+    Q(["1. Utilizador escreve a pergunta"]):::ui
+    S["2. Streamlit envia a pergunta<br/>streamlit_app.py"]:::ui
+    H["3. Historico recente<br/>chat.history_for_agent()<br/>(ultimas 10 msgs, so texto)"]:::ui
+    R["4. run_agent(question, history,<br/>provider, model_id)"]:::agent
+    L["5. Modelo escolhido<br/>get_llm() + bind_tools()"]:::llm
+
+    subgraph LOOP["Ciclo do agente (max. MAX_MODEL_CALLS)"]
+        D{"6. O modelo decide:<br/>chamar uma tool<br/>ou responder?"}:::llm
+        T1["7. get_metric_definition<br/>'gastamos' = spend = SUM(cost)"]:::tool
+        T2["8. get_dataset_metadata<br/>colunas e tipos"]:::tool
+        T3["9. run_postgres_query<br/>SELECT SUM(cost) ..."]:::tool
+        G["SQL guard<br/>so SELECT, so 1 tabela"]:::sec
+    end
+
+    SEM[("semantic.yaml")]:::data
+    CAT[("Catalogo PostgreSQL<br/>COMMENT ON ...")]:::data
+    PG[("PostgreSQL<br/>role read-only")]:::data
+
+    F["11. Resposta final em PT<br/>+ metrica e fonte usadas"]:::llm
+    REC["Recibo: tools, SQL, tokens,<br/>latencia, custo estimado, stopped_by<br/>observability.py"]:::agent
+    UI["12. UI mostra resposta<br/>+ Technical details"]:::ui
+    FU(["Follow-up: 'E qual teve menor?'<br/>o historico volta ao passo 3"]):::ui
+
+    Q --> S --> H --> R --> L --> D
+    D -- "tool" --> T1 --> SEM
+    D -- "tool" --> T2 --> CAT
+    D -- "tool" --> T3 --> G --> PG
+    SEM -- "10. resultado volta ao modelo" --> D
+    CAT -- "10." --> D
+    PG -- "10." --> D
+    D -- "responder" --> F --> REC --> UI --> FU
+    FU -.-> H
+
+
+%% ---------------------------------------------------------------------------
+%% DIAGRAMA 3 - Como o LangChain esta a ser usado neste projeto
+%% Mensagem: "LangChain liga modelo + tools + contexto"
+%% Nota: nao ha AgentExecutor, LangGraph nem structured output no agente;
+%%       o ciclo e explicito em agent.py. Pydantic so em dashboard/spec.py.
+%% ---------------------------------------------------------------------------
+flowchart TD
+    classDef ui fill:#dbeafe,stroke:#2563eb,color:#111
+    classDef agent fill:#dcfce7,stroke:#16a34a,color:#111
+    classDef llm fill:#fef9c3,stroke:#ca8a04,color:#111
+    classDef tool fill:#ede9fe,stroke:#7c3aed,color:#111
+    classDef data fill:#e5e7eb,stroke:#6b7280,color:#111
+    classDef sec fill:#fee2e2,stroke:#dc2626,color:#111
+
+    SEL["Escolha na UI<br/>provider + model_id"]:::ui
+
+    subgraph LC["LangChain (liga as pecas)"]
+        MODEL["MODEL<br/>get_llm(provider, model_id, settings)<br/>ChatBedrockConverse | ChatOllama"]:::agent
+        PROMPT["PROMPT<br/>SystemMessage<br/>prompts/system.md"]:::agent
+        MSG["MESSAGES<br/>HumanMessage / AIMessage<br/>history_to_messages()"]:::agent
+        TOOLS["TOOLS<br/>tool(fn) + bind_tools()<br/>3 funcoes com docstring"]:::agent
+        LOOPN["AGENT LOOP (nosso)<br/>model.invoke() → tool_calls? →<br/>ToolMessage → invoke ..."]:::agent
+        ANS["Resposta final (AIMessage)"]:::agent
+    end
+
+    LIM["Limites<br/>MAX_MODEL_CALLS / MAX_TOOL_CALLS<br/>MAX_COST_PER_REQUEST"]:::sec
+    RECP["RECIBO / OBSERVABILITY<br/>usage_metadata → tokens<br/>observability.py → requests.jsonl"]:::agent
+
+    subgraph APP["Controlada pela aplicacao (nao pelo LangChain)"]
+        SEM[("semantic.yaml<br/>define as metricas")]:::data
+        PG[("PostgreSQL<br/>contem os dados")]:::data
+        GD["SQL guard + role read-only"]:::sec
+    end
+
+    SEL --> MODEL
+    PROMPT --> LOOPN
+    MSG --> LOOPN
+    MODEL --> LOOPN
+    TOOLS --> LOOPN
+    LOOPN --> ANS --> RECP
+    LIM -.-> LOOPN
+    TOOLS -. "get_metric_definition" .-> SEM
+    TOOLS -. "run_postgres_query" .-> GD --> PG
