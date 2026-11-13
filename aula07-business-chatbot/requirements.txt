@@ -1,0 +1,12 @@
+langchain
+langchain-aws
+langchain-ollama
+langchain-postgres
+langchain-text-splitters
+streamlit
+psycopg[binary]
+pydantic
+PyYAML
+sqlglot
+python-dotenv
+pytest
