@@ -1,0 +1,29 @@
+flowchart LR
+    subgraph ING["TaskGroup ingestion"]
+        S1["simulate_erobella"]
+        S2["simulate_trafficjunky"]
+        S3["simulate_voluum"]
+        LB["load_bronze"]
+        S1 --> LB
+        S2 --> LB
+        S3 --> LB
+    end
+    subgraph QB["TaskGroup quality_bronze"]
+        BQ["bronze_quality<br/>gate FAIL -> GateFailed"]
+    end
+    subgraph TR["TaskGroup transform"]
+        NM["normalize"]
+    end
+    subgraph QS["TaskGroup quality_silver"]
+        SQ["silver_quality<br/>gate FAIL -> GateFailed"]
+    end
+    subgraph QG["TaskGroup quality_gold"]
+        MQ["semantic_quality<br/>gate FAIL -> GateFailed"]
+    end
+    subgraph PB["TaskGroup publish"]
+        NT["notify<br/>trigger_rule = all_done"]
+        PU["publish<br/>all_success<br/>FAIL -> PublishBlocked"]
+        NT --> PU
+    end
+    LB --> BQ --> NM --> SQ --> MQ --> NT
+    MQ --> PU

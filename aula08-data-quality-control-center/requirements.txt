@@ -1,0 +1,8 @@
+# Data Quality Control Center (Aula 08). Sem LangChain, sem Great Expectations, sem dbt.
+psycopg[binary]
+PyYAML
+python-dotenv
+streamlit
+pandas
+altair
+pytest

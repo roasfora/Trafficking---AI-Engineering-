@@ -1,0 +1,52 @@
+# Camada semantica (Gold): o significado de negocio das metricas, escrito UMA vez.
+# Regra: rácios sao sempre "ratio of sums". Nunca AVG de rácios.
+dataset: analytics.campaign_performance_daily
+grain: [date, provider, campaign_id]
+metrics:
+  spend:
+    label: Spend (EUR)
+    expression: SUM(cost)
+    kind: additive
+  impressions:
+    label: Impressions
+    expression: SUM(impressions)
+    kind: additive
+  clicks:
+    label: Clicks
+    expression: SUM(clicks)
+    kind: additive
+  conversions:
+    label: Conversions
+    expression: SUM(conversions)
+    kind: additive
+  revenue:
+    label: Revenue (EUR)
+    expression: SUM(revenue)
+    kind: additive
+  cpc:
+    label: Cost per click (EUR)
+    expression: SUM(cost) / NULLIF(SUM(clicks), 0)
+    kind: ratio_of_sums
+  ctr:
+    label: Click-through rate (%)
+    expression: 100.0 * SUM(clicks) / NULLIF(SUM(impressions), 0)
+    kind: ratio_of_sums
+  cr:
+    label: Conversion rate (%)
+    expression: 100.0 * SUM(conversions) / NULLIF(SUM(clicks), 0)
+    kind: ratio_of_sums
+  cpa:
+    label: Cost per acquisition (EUR)
+    expression: SUM(cost) / NULLIF(SUM(conversions), 0)
+    kind: ratio_of_sums
+  roas:
+    label: Return on ad spend
+    expression: SUM(revenue) / NULLIF(SUM(cost), 0)
+    kind: ratio_of_sums
+    # So existe onde o provider reporta receita (Voluum). Onde revenue e NULL, o ROAS tem de ser NULL (nunca 0).
+    requires: [revenue]
+never:
+  - "AVG(cpc)"
+  - "AVG(ctr)"
+  - "AVG(cr)"
+  - "AVG(cost / clicks)"

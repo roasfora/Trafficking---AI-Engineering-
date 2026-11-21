@@ -1,0 +1,7 @@
+.env
+.venv/
+__pycache__/
+.pytest_cache/
+# payloads simulados e logs gerados em cada run
+logs/payloads/
+logs/*.log

@@ -1,0 +1,54 @@
+# Aula 08 - Data Quality Control Center
+#
+#   postgres   (sempre)           porta 5436: nao colide com as aulas 06 (5434) e 07 (5435)
+#   airflow    (profile airflow)  opcional e pesado: o fluxo tambem corre sem ele (python -m quality.demo_dag)
+#
+#   docker compose up -d postgres
+#   docker compose --profile airflow up -d        # + Airflow em http://localhost:8082
+#
+# Os scripts sql/*.sql correm UMA vez, quando o volume nasce.
+# Para recomecar do zero: docker compose down -v && docker compose up -d postgres
+
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: dq
+      POSTGRES_PASSWORD: dq
+      POSTGRES_DB: dq
+    ports:
+      - "5436:5432"
+    volumes:
+      - dq-pgdata:/var/lib/postgresql/data
+      - ./sql:/sql:ro
+      - ./docker/00-init.sh:/docker-entrypoint-initdb.d/00-init.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dq -d dq"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  airflow:
+    profiles: ["airflow"]
+    build:
+      context: .
+      dockerfile: docker/airflow.Dockerfile
+    command: standalone
+    environment:
+      PYTHONPATH: /opt/airflow/project
+      DATABASE_URL: postgresql://dq:dq@postgres:5432/dq            # dados da PoC
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://dq:dq@postgres:5432/airflow   # metadados do Airflow
+      AIRFLOW__CORE__DAGS_FOLDER: /opt/airflow/project/dags
+      AIRFLOW__CORE__LOAD_EXAMPLES: "False"
+      AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_ALL_ADMINS: "True"       # simplificacao de formacao
+      PAYLOAD_DIR: /opt/airflow/project/logs/payloads
+    ports:
+      - "8082:8080"
+    volumes:
+      - .:/opt/airflow/project
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  dq-pgdata:

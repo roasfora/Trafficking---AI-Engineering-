@@ -1,0 +1,47 @@
+flowchart TD
+    DAG["dags/provider_data_quality.py<br/>DAG + TaskGroups + PythonOperator<br/>params: scenario, gate_mode<br/>max_active_runs=1"]
+    CTX["_context(**ctx)<br/>RunContext.create(scenario, gate_mode, run_id do Airflow)"]
+    DAG --> CTX
+
+    subgraph PIPE["quality/pipeline.py  (stages: o Airflow so chama estas funcoes)"]
+        F1["simulate_provider(rc, provider)"]
+        F2["load_bronze(rc)"]
+        F3["quality_gate(rc, layer)"]
+        F4["normalize(rc)"]
+        F5["notify(rc)"]
+        F6["publish(rc)"]
+    end
+    CTX --> F1
+    CTX --> F2
+    CTX --> F3
+    CTX --> F4
+    CTX --> F5
+    CTX --> F6
+
+    F1 --> SIM["simulators/*_api.fetch()<br/>+ scenarios.py: 9 faults"]
+    SIM --> PAY[("logs/payloads/run_id/provider.json")]
+    PAY --> F2
+    F2 --> BL["ingestion/bronze_loader.py<br/>load_bronze + load_control"]
+    BL --> RAW[("raw.* + raw.api_runs<br/>analytics.daily_control")]
+
+    F3 --> RUN["quality/runner.py<br/>run_quality_gate(layer, run_id)"]
+    RUN --> CFG["config/quality_checks.yaml<br/>load_checks() - checks sao configuracao"]
+    RUN --> REG["REGISTRY: type -> funcao"]
+    REG --> BC["bronze_checks.py"]
+    REG --> SC["silver_checks.py<br/>rolling_avg_change usa anomalies.py"]
+    REG --> MC["semantic_checks.py<br/>formulas do semantic.yaml"]
+    REG --> RC["reconciliation.py"]
+    RUN --> SEV["severidade: warning nunca passa de WARN"]
+    RUN --> CR[("data_quality.check_results")]
+    RUN --> NOTI["notifier.py<br/>Console (+ Webhook opcional)"]
+    NOTI --> AL[("data_quality.alerts")]
+    F3 -->|"strict e FAIL"| GF["raise GateFailed<br/>task falha, seguintes upstream_failed"]
+
+    F4 --> NZ["ingestion/normalize.py<br/>JOIN analytics.exchange_rate"]
+    NZ --> SIL[("analytics.campaign_performance_daily")]
+
+    F5 --> CR
+    F5 --> PR[("data_quality.pipeline_runs<br/>publish_allowed, status")]
+    F6 -->|"ha FAIL"| PB["raise PublishBlocked"]
+    F6 -->|"sem FAIL"| PUBT[("analytics.published_campaign_performance_daily")]
+    F6 --> PR

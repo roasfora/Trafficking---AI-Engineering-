@@ -1,0 +1,533 @@
+# Quality checks sao CONFIGURACAO, nao logica de DAG.
+#
+# Cada check: name, provider (erobella|trafficjunky|voluum|all|platform), layer (bronze|silver|semantic),
+# dataset, type (funcao em quality/*_checks.py), parametros e:
+#   severity: critical  -> pode dar FAIL (bloqueia o publish)
+#   severity: warning   -> no maximo WARN (avisa, nao bloqueia): "anomalia != erro"
+#   why:      explicacao de negocio mostrada no dashboard ("Why it matters")
+# Limites em percentagem (warn_pct / fail_pct) sao valores ABSOLUTOS da diferenca.
+checks:
+- name: erobella_freshness
+  provider: erobella
+  layer: bronze
+  dataset: erobella_daily_stats
+  type: freshness
+  severity: critical
+  max_delay_hours: 30
+  why: Dados velhos levam a decisoes sobre um passado que ja mudou.
+- name: erobella_schema
+  provider: erobella
+  layer: bronze
+  dataset: erobella_daily_stats
+  type: schema_diff
+  severity: critical
+  expected_fields:
+  - day
+  - impressions
+  - clicks
+  - ctr_pct
+  - cost_eur
+  - ecpm_eur
+  - rates
+  - updated_at
+  why: Se o provider muda o contrato sem avisar, as colunas ficam NULL e tudo a jusante mente.
+- name: erobella_coverage
+  provider: erobella
+  layer: bronze
+  dataset: erobella_daily_stats
+  type: row_count
+  severity: critical
+  keys: &id001
+  - day
+  entities_per_day: 1
+  warn_pct: 0
+  fail_pct: 5
+  why: Um dia ou uma campanha em falta subestima spend e conversoes sem dar erro nenhum.
+- name: erobella_duplicates
+  provider: erobella
+  layer: bronze
+  dataset: erobella_daily_stats
+  type: duplicate_rows
+  severity: critical
+  keys: *id001
+  why: Duplicados contam o mesmo dinheiro duas vezes.
+- name: erobella_api_to_bronze
+  provider: erobella
+  layer: bronze
+  dataset: erobella_daily_stats
+  type: reconcile_api_to_bronze
+  severity: critical
+  warn_pct: 0
+  fail_pct: 1
+  why: O que o provider diz ter enviado tem de ser o que guardamos.
+- name: trafficjunky_freshness
+  provider: trafficjunky
+  layer: bronze
+  dataset: trafficjunky_campaign_stats
+  type: freshness
+  severity: critical
+  max_delay_hours: 30
+  why: Dados velhos levam a decisoes sobre um passado que ja mudou.
+- name: trafficjunky_schema
+  provider: trafficjunky
+  layer: bronze
+  dataset: trafficjunky_campaign_stats
+  type: schema_diff
+  severity: critical
+  expected_fields:
+  - day
+  - campaign_id
+  - campaign_name
+  - campaign_type
+  - impressions
+  - clicks
+  - conversions
+  - ctr
+  - ecpm
+  - ecpc
+  - cost
+  - currency
+  why: Se o provider muda o contrato sem avisar, as colunas ficam NULL e tudo a jusante mente.
+- name: trafficjunky_coverage
+  provider: trafficjunky
+  layer: bronze
+  dataset: trafficjunky_campaign_stats
+  type: row_count
+  severity: critical
+  keys: &id002
+  - day
+  - campaign_id
+  entities_per_day: 4
+  warn_pct: 0
+  fail_pct: 5
+  why: Um dia ou uma campanha em falta subestima spend e conversoes sem dar erro nenhum.
+- name: trafficjunky_duplicates
+  provider: trafficjunky
+  layer: bronze
+  dataset: trafficjunky_campaign_stats
+  type: duplicate_rows
+  severity: critical
+  keys: *id002
+  why: Duplicados contam o mesmo dinheiro duas vezes.
+- name: trafficjunky_api_to_bronze
+  provider: trafficjunky
+  layer: bronze
+  dataset: trafficjunky_campaign_stats
+  type: reconcile_api_to_bronze
+  severity: critical
+  warn_pct: 0
+  fail_pct: 1
+  why: O que o provider diz ter enviado tem de ser o que guardamos.
+- name: voluum_freshness
+  provider: voluum
+  layer: bronze
+  dataset: voluum_report
+  type: freshness
+  severity: critical
+  max_delay_hours: 30
+  why: Dados velhos levam a decisoes sobre um passado que ja mudou.
+- name: voluum_schema
+  provider: voluum
+  layer: bronze
+  dataset: voluum_report
+  type: schema_diff
+  severity: critical
+  expected_fields:
+  - day
+  - campaign_id
+  - campaign_name
+  - traffic_source
+  - country
+  - visits
+  - clicks
+  - conversions
+  - impressions
+  - revenue
+  - cost
+  - profit
+  - ctr
+  - cr
+  - cpc
+  - cpa
+  why: Se o provider muda o contrato sem avisar, as colunas ficam NULL e tudo a jusante mente.
+- name: voluum_coverage
+  provider: voluum
+  layer: bronze
+  dataset: voluum_report
+  type: row_count
+  severity: critical
+  keys: &id003
+  - day
+  - campaign_id
+  entities_per_day: 5
+  warn_pct: 0
+  fail_pct: 5
+  why: Um dia ou uma campanha em falta subestima spend e conversoes sem dar erro nenhum.
+- name: voluum_duplicates
+  provider: voluum
+  layer: bronze
+  dataset: voluum_report
+  type: duplicate_rows
+  severity: critical
+  keys: *id003
+  why: Duplicados contam o mesmo dinheiro duas vezes.
+- name: voluum_api_to_bronze
+  provider: voluum
+  layer: bronze
+  dataset: voluum_report
+  type: reconcile_api_to_bronze
+  severity: critical
+  warn_pct: 0
+  fail_pct: 1
+  why: O que o provider diz ter enviado tem de ser o que guardamos.
+- name: erobella_clicks_null_rate
+  provider: erobella
+  layer: bronze
+  dataset: erobella_daily_stats
+  type: null_rate
+  severity: warning
+  columns:
+  - clicks
+  warn_pct: 5
+  fail_pct: 20
+  why: Clicks a NULL tornam CTR e CPC incalculaveis nesse dia.
+- name: trafficjunky_null_rate
+  provider: trafficjunky
+  layer: bronze
+  dataset: trafficjunky_campaign_stats
+  type: null_rate
+  severity: warning
+  columns:
+  - clicks
+  - cost
+  - impressions
+  warn_pct: 5
+  fail_pct: 20
+  why: Nulos em cost/clicks/impressions quebram os rácios.
+- name: voluum_null_rate
+  provider: voluum
+  layer: bronze
+  dataset: voluum_report
+  type: null_rate
+  severity: warning
+  columns:
+  - clicks
+  - cost
+  - revenue
+  warn_pct: 5
+  fail_pct: 20
+  why: Nulos em revenue/cost distorcem ROAS e profit.
+- name: voluum_pagination
+  provider: voluum
+  layer: bronze
+  dataset: voluum_report
+  type: pagination_complete
+  severity: critical
+  total_field: total_rows
+  why: Sem todas as paginas, os totais ficam silenciosamente abaixo da realidade.
+- name: voluum_truncated
+  provider: voluum
+  layer: bronze
+  dataset: voluum_report
+  type: truncated_response
+  severity: critical
+  why: O proprio provider avisou que a resposta esta incompleta.
+- name: silver_required_not_null
+  provider: all
+  layer: silver
+  dataset: campaign_performance_daily
+  type: not_null
+  severity: critical
+  columns:
+  - date
+  - provider
+  - campaign_id
+  - cost
+  why: Sem chave ou custo, a linha nao pode ser usada.
+- name: silver_measures_not_null
+  provider: all
+  layer: silver
+  dataset: campaign_performance_daily
+  type: not_null
+  severity: warning
+  columns:
+  - impressions
+  - clicks
+  warn_pct: 0
+  fail_pct: 5
+  why: Impressions/clicks a NULL impedem CTR e CPC.
+- name: silver_non_negative
+  provider: all
+  layer: silver
+  dataset: campaign_performance_daily
+  type: min_value
+  severity: critical
+  columns:
+  - impressions
+  - clicks
+  - conversions
+  - cost
+  - revenue
+  min: 0
+  why: Valores negativos nao existem em impressions, clicks, custo ou receita.
+- name: silver_allowed_providers
+  provider: all
+  layer: silver
+  dataset: campaign_performance_daily
+  type: allowed_values
+  severity: critical
+  column: provider
+  allowed:
+  - erobella
+  - trafficjunky
+  - voluum
+  why: Um provider desconhecido indica um erro de mapeamento.
+- name: silver_unique_grain
+  provider: all
+  layer: silver
+  dataset: campaign_performance_daily
+  type: unique_grain
+  severity: critical
+  keys:
+  - date
+  - provider
+  - campaign_id
+  why: O grain date+provider+campaign_id tem de ser unico, senao somas e rácios duplicam.
+- name: silver_country_iso2
+  provider: all
+  layer: silver
+  dataset: campaign_performance_daily
+  type: country_iso2
+  severity: warning
+  warn_pct: 0
+  fail_pct: 100
+  why: Paises fora de ISO-3166 alpha-2 quebram joins e filtros.
+- name: silver_currency_is_eur
+  provider: all
+  layer: silver
+  dataset: campaign_performance_daily
+  type: currency_is_eur
+  severity: critical
+  why: Misturar moedas soma laranjas com macas.
+- name: silver_clicks_le_impressions
+  provider: all
+  layer: silver
+  dataset: campaign_performance_daily
+  type: clicks_le_impressions
+  severity: critical
+  warn_pct: 0
+  fail_pct: 5
+  why: 'Mais clicks que impressoes e impossivel: CTR > 100%.'
+- name: silver_conversions_le_clicks
+  provider: all
+  layer: silver
+  dataset: campaign_performance_daily
+  type: conversions_le_clicks
+  severity: warning
+  warn_pct: 0
+  fail_pct: 5
+  why: Mais conversoes que clicks sugere atribuicao ou contagem erradas.
+- name: revenue_without_conversions
+  provider: all
+  layer: silver
+  dataset: campaign_performance_daily
+  type: revenue_without_conversions
+  severity: warning
+  warn_pct: 0
+  fail_pct: 20
+  why: 'Receita sem conversoes sugere postbacks perdidos: o ROAS parece bom por razoes erradas.'
+- name: silver_cost_without_impressions
+  provider: all
+  layer: silver
+  dataset: campaign_performance_daily
+  type: cost_without_impressions
+  severity: warning
+  warn_pct: 0
+  fail_pct: 20
+  why: 'Custo sem impressoes: pagamos por nada?'
+- name: silver_known_campaign
+  provider: voluum
+  layer: silver
+  dataset: campaign_performance_daily
+  type: known_campaign
+  severity: warning
+  warn_pct: 0
+  fail_pct: 20
+  why: Campanhas fora da dimensao nao tem dono nem geo.
+- name: daily_volume_change
+  provider: all
+  layer: silver
+  dataset: campaign_performance_daily
+  type: rolling_avg_change
+  severity: warning
+  metric: cost
+  lookback_days: 7
+  warn_pct: 40
+  fail_pct: 70
+  why: 'Uma quebra brusca de spend pode ser um problema de dados ou um problema de negocio: obriga a investigar. Anomalia
+    nao e erro.'
+- name: silver_bronze_to_silver
+  provider: all
+  layer: silver
+  dataset: campaign_performance_daily
+  type: reconcile_bronze_to_silver
+  severity: critical
+  metrics:
+  - row_count
+  - spend
+  - clicks
+  - conversions
+  warn_pct: 0.5
+  fail_pct: 2
+  why: A normalizacao nao pode perder nem inventar linhas, spend, clicks ou conversoes.
+- name: semantic_ratio_bounds
+  provider: all
+  layer: semantic
+  dataset: campaign_performance_daily
+  type: ratio_bounds
+  severity: critical
+  bounds:
+    ctr:
+    - 0
+    - 100
+    cr:
+    - 0
+    - 100
+  why: CTR e CR fora de [0, 100] significam numerador/denominador trocados.
+- name: semantic_ratio_of_sums
+  provider: all
+  layer: semantic
+  dataset: campaign_performance_daily
+  type: ratio_of_sums
+  severity: critical
+  metrics:
+    cpc:
+      numerator: cost
+      denominator: clicks
+    ctr:
+      numerator: clicks
+      denominator: impressions
+      scale: 100
+    cr:
+      numerator: conversions
+      denominator: clicks
+      scale: 100
+    cpa:
+      numerator: cost
+      denominator: conversions
+    roas:
+      numerator: revenue
+      denominator: cost
+  why: 'Rácios tem de ser SUM(a)/SUM(b): a media de rácios da o mesmo peso a um dia com 12 clicks e a um com 12 000.'
+- name: semantic_roas_availability
+  provider: all
+  layer: semantic
+  dataset: campaign_performance_daily
+  type: metric_availability
+  severity: critical
+  metric: roas
+  requires:
+  - revenue
+  why: ROAS so existe onde ha receita; nunca deve aparecer como 0 ou inventado.
+- name: semantic_no_avg_of_ratios
+  provider: platform
+  layer: semantic
+  dataset: campaign_performance_daily
+  type: no_avg_of_ratios
+  severity: critical
+  why: Nenhuma metrica ou view pode usar AVG() sobre rácios.
+- name: semantic_additivity
+  provider: all
+  layer: semantic
+  dataset: campaign_performance_daily
+  type: additivity
+  severity: critical
+  metrics:
+  - spend
+  - clicks
+  - conversions
+  - revenue
+  why: 'Spend, clicks, conversoes e receita somam-se: campanhas somadas = total do provider.'
+- name: erobella_cpm_reconciliation
+  provider: erobella
+  layer: semantic
+  dataset: campaign_performance_daily
+  type: metric_vs_provider
+  severity: warning
+  metric: cpm
+  provider_field: ecpm_eur
+  warn_pct: 3
+  fail_pct: 10
+  why: O eCPM do provider deve bater com o nosso custo/impressoes.
+- name: trafficjunky_cpc_reconciliation
+  provider: trafficjunky
+  layer: semantic
+  dataset: campaign_performance_daily
+  type: metric_vs_provider
+  severity: warning
+  metric: cpc
+  provider_field: ecpc
+  warn_pct: 3
+  fail_pct: 10
+  why: O ecpc do provider deve bater com o CPC canonico; se nao bate, alguem calcula o CPC de outra forma.
+- name: voluum_cpc_reconciliation
+  provider: voluum
+  layer: semantic
+  dataset: campaign_performance_daily
+  type: metric_vs_provider
+  severity: warning
+  metric: cpc
+  provider_field: cpc
+  warn_pct: 3
+  fail_pct: 10
+  why: O CPC do Voluum deve bater com o nosso custo/clicks.
+- name: silver_to_gold
+  provider: all
+  layer: semantic
+  dataset: campaign_performance_daily
+  type: reconcile_silver_to_gold
+  severity: critical
+  metrics:
+  - spend
+  - clicks
+  - conversions
+  warn_pct: 0.01
+  fail_pct: 0.1
+  why: A camada semantica tem de devolver exatamente o que a Silver contem.
+- name: erobella_control_reconciliation
+  provider: erobella
+  layer: semantic
+  dataset: campaign_performance_daily
+  type: reconcile_control
+  severity: critical
+  campaign_prefix: erobella
+  metrics:
+  - spend
+  warn_pct: 1
+  fail_pct: 5
+  why: O controlo interno e a segunda opiniao independente do provider.
+- name: trafficjunky_control_reconciliation
+  provider: trafficjunky
+  layer: semantic
+  dataset: campaign_performance_daily
+  type: reconcile_control
+  severity: critical
+  campaign_prefix: tj-
+  metrics:
+  - spend
+  warn_pct: 1
+  fail_pct: 5
+  why: O controlo interno e a segunda opiniao independente do provider.
+- name: voluum_control_reconciliation
+  provider: voluum
+  layer: semantic
+  dataset: campaign_performance_daily
+  type: reconcile_control
+  severity: critical
+  campaign_prefix: vl-
+  metrics:
+  - spend
+  - revenue
+  warn_pct: 1
+  fail_pct: 5
+  why: O controlo interno e a segunda opiniao independente do provider.
